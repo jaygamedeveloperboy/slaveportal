@@ -7,13 +7,23 @@
   <link rel="stylesheet" href="styles.css"/>
 </head>
 <body>
-  <button id="back-btn" onclick="window.location.href='portal.html'" style="position:fixed;top:32px;left:32px;z-index:10;background:#303030;color:#fff;border:2px solid #B52D23;border-radius:8px;padding:0.7rem 1.5rem;font-size:1.1rem;cursor:pointer;font-weight:bold;transition:background 0.2s,color 0.2s;">Back</button>
+  <!-- Modern App Header -->
+  <header class="app-header">
+    <button class="icon-btn" id="menu-btn" aria-label="Menu">
+      <img src="menu.svg" alt="Menu" style="width:28px;height:28px;">
+    </button>
+    <div class="profile">
+      <div class="profile-avatar" id="profile-avatar">M</div>
+      <div class="profile-info">
+        <span class="profile-name" id="profile-name">Mick</span>
+        <span class="profile-role" id="profile-role">Dominant</span>
+      </div>
+    </div>
+    <button class="icon-btn" id="chat-btn" aria-label="Chat">
+      <img src="chat.svg" alt="Chat" style="width:28px;height:28px;">
+    </button>
+  </header>
   <div class="container">
-    <header>
-      <h1>Obedience Tracker</h1>
-      <div id="points-display" class="points-display">Total Points: 0</div>
-    </header>
-
     <main>
       <section id="habits-page" class="page-section">
         <h2>Daily Tasks</h2>

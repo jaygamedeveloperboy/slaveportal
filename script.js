@@ -31,16 +31,15 @@ function updatePointsDisplay() {
 function displayTasks() {
   const taskList = document.getElementById('task-list');
   taskList.innerHTML = '';
-  
   tasks.forEach(task => {
     const taskElement = document.createElement('div');
     taskElement.className = 'task-card';
     taskElement.innerHTML = `
-      <h3>${task.name}</h3>
-      <p>Points: ${task.points}</p>
-      <button onclick="completeTask(${task.id})" ${task.completed ? 'disabled' : ''}>
-        ${task.completed ? 'Completed' : 'Complete Task'}
-      </button>
+      <div>
+        <div class="task-card-title">${task.name}</div>
+        <div class="task-card-desc">${task.description || ''}</div>
+      </div>
+      <div class="task-card-points">${task.points}</div>
     `;
     taskList.appendChild(taskElement);
   });
@@ -263,12 +262,12 @@ function renderPunishments() {
     if (p.intensity && p.intensity !== intensity) return;
     const card = document.createElement('div');
     card.className = 'task-card';
-    card.style.background = '#a02929';
     card.innerHTML = `
-      <h3>${p.name || p}</h3>
-      <p>${p.description || ''}</p>
-      ${p.intensity ? `<span>Intensity: ${p.intensity}</span><br>` : ''}
-      <button onclick="deletePunishment(${p.id})">Delete</button>
+      <div>
+        <div class="task-card-title">${p.name || p}</div>
+        <div class="task-card-desc">${p.description || ''}</div>
+      </div>
+      <div class="task-card-points">${p.intensity || ''}</div>
     `;
     list.appendChild(card);
   });
@@ -296,15 +295,12 @@ function renderRewards() {
   data.forEach(r => {
     const card = document.createElement('div');
     card.className = 'task-card';
-    card.style.background = '#a02929';
     card.innerHTML = `
-      <h3>${r.name}</h3>
-      <p>${r.description}</p>
-      <div class="reward-actions">
-        <span>Cost: ${r.cost}</span>
-        <button onclick="buyReward(${r.id})">BUY</button>
-        <button onclick="redeemReward(${r.id})">REDEEM</button>
+      <div>
+        <div class="task-card-title">${r.name}</div>
+        <div class="task-card-desc">${r.description}</div>
       </div>
+      <div class="task-card-points">${r.cost}</div>
     `;
     list.appendChild(card);
   });
@@ -332,10 +328,10 @@ function renderNotes() {
   data.forEach(n => {
     const card = document.createElement('div');
     card.className = 'task-card';
-    card.style.background = '#333';
     card.innerHTML = `
-      <p>${n.text.replace(/\n/g, '<br>')}</p>
-      <button onclick="deleteNote(${n.id})">Delete</button>
+      <div>
+        <div class="task-card-desc">${n.text.replace(/\n/g, '<br>')}</div>
+      </div>
     `;
     list.appendChild(card);
   });
@@ -367,27 +363,12 @@ function renderActivePunishments() {
     card.className = 'task-card';
     const count = p.count || 1;
     card.innerHTML = `
-      <div style="flex:1;">
-        <span style="font-weight:600;">${p.name}</span>
-        ${p.description ? `<div style='font-size:0.98em;color:#ccc;margin-top:2px;'>${p.description}</div>` : ''}
+      <div>
+        <div class="task-card-title">${p.name}</div>
+        <div class="task-card-desc">${p.description || ''}</div>
       </div>
-      <div style="display:flex;align-items:center;gap:0.5rem;">
-        <span class="icon-btn" onclick="decrementPunishment(${i})" title="Decrease">
-          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/></svg>
-        </span>
-        <span style="min-width:1.5em;text-align:center;font-weight:600;">${count}</span>
-        <span class="icon-btn" onclick="incrementPunishment(${i})" title="Increase">
-          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
-        </span>
-        <button class="trash-btn" title="Remove" onclick="removeActivePunishment(${i})">
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2v2"/><line x1="10" y1="11" x2="10" y2="17"/><line x1="14" y1="11" x2="14" y2="17"/></svg>
-        </button>
-      </div>
+      <div class="task-card-points">${count}</div>
     `;
-    // Attach event listeners for plus/minus/trash
-    card.querySelectorAll('.icon-btn')[0].onclick = () => decrementPunishment(i);
-    card.querySelectorAll('.icon-btn')[1].onclick = () => incrementPunishment(i);
-    card.querySelector('.trash-btn').onclick = () => removeActivePunishment(i);
     list.appendChild(card);
   });
 }
@@ -430,7 +411,13 @@ function renderAddPunishments() {
   data.forEach(p => {
     const card = document.createElement('div');
     card.className = 'task-card';
-    card.innerHTML = `<span>${typeof p === 'object' ? p.name : p}</span><button>Add</button>`;
+    card.innerHTML = `
+      <div>
+        <div class="task-card-title">${typeof p === 'object' ? p.name : p}</div>
+        <div class="task-card-desc">${p.description || ''}</div>
+      </div>
+      <button>Add</button>
+    `;
     card.querySelector('button').onclick = () => addActivePunishment(p);
     list.appendChild(card);
   });
@@ -504,4 +491,14 @@ function addActivePunishment(punishment) {
     showAddPunishments = true;
     renderAddPunishments();
   }
-} 
+}
+
+// Set profile info in app-header from logged-in user
+window.addEventListener('DOMContentLoaded', () => {
+  const user = JSON.parse(localStorage.getItem('user') || '{}');
+  if (user && user.username) {
+    document.getElementById('profile-name').textContent = user.username;
+    document.getElementById('profile-role').textContent = user.role ? user.role.charAt(0).toUpperCase() + user.role.slice(1) : '';
+    document.getElementById('profile-avatar').textContent = user.username.charAt(0).toUpperCase();
+  }
+}); 
