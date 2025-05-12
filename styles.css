@@ -29,8 +29,10 @@ html, body {
 .container {
   max-width: 1200px;
   margin: 0 auto;
-  padding: 2rem;
   padding-top: calc(56px + env(safe-area-inset-top, 0)); /* header height + safe area */
+  padding-left: 2rem;
+  padding-right: 2rem;
+  padding-bottom: 2rem;
 }
 
 header {
