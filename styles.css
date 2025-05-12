@@ -35,6 +35,16 @@ header {
   justify-content: space-between;
   align-items: center;
   margin-bottom: 2rem;
+  position: relative;
+}
+
+header h1 {
+  margin-bottom: 1.2rem;
+  padding-right: 1.5rem;
+}
+
+.points-display {
+  margin-left: 1.5rem;
 }
 
 h1, h2, h3 {
@@ -44,14 +54,6 @@ h1, h2, h3 {
 h1 {
   color: var(--primary-color);
   font-size: 2.5rem;
-}
-
-.points-display {
-  background-color: var(--card-background);
-  padding: 1rem 2rem;
-  border-radius: var(--border-radius);
-  font-size: 1.2rem;
-  font-weight: bold;
 }
 
 .task-grid {
@@ -242,6 +244,14 @@ input[type="range"]::-webkit-slider-thumb {
   }
   header {
     margin-top: 60px;
+  }
+  header h1 {
+    font-size: 2rem;
+    margin-bottom: 1.5rem;
+    padding-right: 1.2rem;
+  }
+  .points-display {
+    margin-left: 0.8rem;
   }
 }
 
