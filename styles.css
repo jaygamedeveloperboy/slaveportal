@@ -30,6 +30,7 @@ html, body {
   max-width: 1200px;
   margin: 0 auto;
   padding: 2rem;
+  padding-top: calc(56px + env(safe-area-inset-top, 0)); /* header height + safe area */
 }
 
 header {
@@ -498,7 +499,8 @@ input[type="range"]::-webkit-slider-thumb {
   left: 0;
   z-index: 200;
   box-shadow: 0 2px 8px rgba(0,0,0,0.12);
-  padding-top: env(safe-area-inset-top, 0);
+  padding-top: calc(env(safe-area-inset-top, 0) + 18px);
+  padding-bottom: 18px;
 }
 .app-header .profile {
   display: flex;

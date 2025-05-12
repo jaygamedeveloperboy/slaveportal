@@ -499,6 +499,15 @@ window.addEventListener('DOMContentLoaded', () => {
   if (user && user.username) {
     document.getElementById('profile-name').textContent = user.username;
     document.getElementById('profile-role').textContent = user.role ? user.role.charAt(0).toUpperCase() + user.role.slice(1) : '';
-    document.getElementById('profile-avatar').textContent = user.username.charAt(0).toUpperCase();
+    const avatarEl = document.getElementById('profile-avatar');
+    if (user.avatar) {
+      if (user.avatar.startsWith('http')) {
+        avatarEl.innerHTML = `<img src="${user.avatar}" alt="avatar" style="width:100%;height:100%;border-radius:50%;object-fit:cover;">`;
+      } else {
+        avatarEl.textContent = user.avatar;
+      }
+    } else {
+      avatarEl.textContent = user.username.charAt(0).toUpperCase();
+    }
   }
 }); 
