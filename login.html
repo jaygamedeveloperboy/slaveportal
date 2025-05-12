@@ -78,6 +78,10 @@
     <form id="login-form" onsubmit="return handleLogin(event)" style="width:100%;flex:1;display:flex;flex-direction:column;justify-content:flex-start;">
       <input name="username" placeholder="Username" required />
       <input name="password" type="password" placeholder="Password" required />
+      <input name="name" id="name-input" placeholder="Display Name" required />
+      <label for="avatar-input" style="margin-bottom:0.3rem;">Avatar (image or emoji):</label>
+      <input type="file" id="avatar-input" accept="image/*" style="margin-bottom:0.5rem;" />
+      <input name="avatar-emoji" id="avatar-emoji" placeholder="Or emoji (e.g. 😈)" maxlength="2" style="margin-bottom:1.2rem;" />
       <select name="role" id="role-select" required>
         <option value="">Select Role</option>
         <option value="dominant">Dominant</option>
@@ -123,34 +127,44 @@
       }
     });
 
-    function handleLogin(e) {
-      e.preventDefault();
-      const form = e.target;
+    async function handleLogin(event) {
+      event.preventDefault();
+      const form = event.target;
       const username = form.username.value.trim();
       const password = form.password.value;
+      const name = form.name.value.trim();
       const role = form.role.value;
-      const error = document.getElementById('login-error');
-      let accounts = getAccounts();
-      const found = accounts.find(acc => acc.username === username);
-      if (!found) {
-        // New signup
-        accounts.push({ username, password, role });
-        saveAccounts(accounts);
-        localStorage.setItem('user', username);
-        window.location.href = 'portal.html';
-        return false;
-      } else {
-        // Login
-        if (password === found.password) {
-          localStorage.setItem('user', username);
-          window.location.href = 'portal.html';
-          return false;
-        } else {
-          error.textContent = 'Invalid username or password.';
-          return false;
-        }
+      const avatarEmoji = form['avatar-emoji'].value.trim();
+      const avatarInput = document.getElementById('avatar-input');
+      let avatar = '';
+      if (avatarInput.files && avatarInput.files[0]) {
+        // Convert image to data URL
+        const file = avatarInput.files[0];
+        avatar = await new Promise(resolve => {
+          const reader = new FileReader();
+          reader.onload = e => resolve(e.target.result);
+          reader.readAsDataURL(file);
+        });
+      } else if (avatarEmoji) {
+        avatar = avatarEmoji;
       }
+      let accounts = getAccounts();
+      let user = accounts.find(acc => acc.username === username);
+      if (!user) {
+        // New signup
+        user = { username, password, name, role, avatar };
+        accounts.push(user);
+        saveAccounts(accounts);
+      } else if (user.password !== password) {
+        document.getElementById('login-error').textContent = 'Incorrect password.';
+        return false;
+      }
+      // Save user to localStorage
+      localStorage.setItem('user', JSON.stringify(user));
+      window.location.href = 'index.html';
+      return false;
     }
+    window.handleLogin = handleLogin;
   </script>
 </body>
 </html> 

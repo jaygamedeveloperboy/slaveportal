@@ -373,6 +373,7 @@ input[type="range"]::-webkit-slider-thumb {
   margin-bottom: 2px;
   filter: grayscale(1) brightness(1.2);
   transition: filter 0.2s, transform 0.2s;
+  margin-top: 8px;
 }
 
 .circle-btn.active img,
@@ -610,6 +611,7 @@ input[type="range"]::-webkit-slider-thumb {
   height: 28px;
   filter: grayscale(1) brightness(1.2);
   transition: filter 0.2s, transform 0.2s;
+  margin-top: 8px;
 }
 .circle-btn.active img,
 .circle-btn:focus img,
@@ -657,4 +659,9 @@ input[type="range"]::-webkit-slider-thumb {
 }
 #fab-icon {
   pointer-events: none;
+}
+
+#drawer-overlay,
+#side-drawer {
+  display: none;
 } 
