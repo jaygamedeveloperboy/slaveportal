@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Obedience Tracker</title>
+  <link rel="stylesheet" href="styles.css"/>
+</head>
+<body>
+  <button id="back-btn" onclick="window.location.href='portal.html'" style="position:fixed;top:32px;left:32px;z-index:10;background:#303030;color:#fff;border:2px solid #B52D23;border-radius:8px;padding:0.7rem 1.5rem;font-size:1.1rem;cursor:pointer;font-weight:bold;transition:background 0.2s,color 0.2s;">Back</button>
+  <div class="container">
+    <header>
+      <h1>Obedience Tracker</h1>
+      <div id="points-display" class="points-display">Total Points: 0</div>
+    </header>
+
+    <main>
+      <section id="habits-page" class="page-section">
+        <h2>Daily Tasks</h2>
+        <div id="task-list" class="task-grid"></div>
+      </section>
+      <section id="rewards-page" class="page-section" style="display:none">
+        <h2>Rewards</h2>
+        <div id="rewards-list"></div>
+      </section>
+      <section id="punishments-page" class="page-section" style="display:none">
+        <div class="punishments-flex">
+          <div class="active-punishments">
+            <h2>Active Punishments</h2>
+            <div id="active-punishments-list"></div>
+          </div>
+          <div class="add-punishments">
+            <h2>Add Punishments</h2>
+            <div class="intensity-controls">
+              <label for="intensity">Punishment Intensity:</label>
+              <input type="range" id="intensity" min="1" max="5" value="1">
+              <button class="generate-btn" style="margin-left:1rem;vertical-align:middle;" onclick="generatePunishment()">Generate Punishment</button>
+            </div>
+            <div id="add-punishments-list"></div>
+          </div>
+        </div>
+      </section>
+      <section id="notes-page" class="page-section" style="display:none">
+        <h2>Notes</h2>
+        <div id="notes-list"></div>
+      </section>
+    </main>
+  </div>
+
+  <button id="fab" class="fab" onclick="fabAction()">
+    <span id="fab-icon">+</span>
+  </button>
+
+  <nav class="circle-nav">
+    <button class="circle-btn" id="nav-rewards" onclick="switchPage('rewards')">
+      <span class="circle-icon"><img src="rewards.png" alt="Rewards Icon" /></span>
+      <span class="circle-label">Rewards</span>
+    </button>
+    <button class="circle-btn" id="nav-punishments" onclick="switchPage('punishments')">
+      <span class="circle-icon"><img src="gavel.png" alt="Punishments Icon" /></span>
+      <span class="circle-label">Punishments</span>
+    </button>
+    <button class="circle-btn active" id="nav-habits" onclick="switchPage('habits')">
+      <span class="circle-icon"><img src="habits.png" alt="Habits Icon" /></span>
+      <span class="circle-label">Habits</span>
+    </button>
+    <button class="circle-btn" id="nav-notes" onclick="switchPage('notes')">
+      <span class="circle-icon"><img src="notes.png" alt="Notes Icon" /></span>
+      <span class="circle-label">Notes</span>
+    </button>
+  </nav>
+
+  <div id="modal-overlay" class="modal-overlay" style="display:none;">
+    <div class="modal">
+      <button class="modal-close" onclick="closeModal()">&times;</button>
+      <h2 id="modal-title">Add Item</h2>
+      <form id="modal-form" onsubmit="submitModal(event)">
+        <div id="modal-fields"></div>
+        <button type="submit" class="modal-submit">Add</button>
+      </form>
+    </div>
+  </div>
+
+  <div id="custom-punishment-modal" class="modal-overlay" style="display:none;">
+    <div class="modal">
+      <button class="modal-close" onclick="closeCustomPunishmentModal()">&times;</button>
+      <h2>Add Custom Punishment</h2>
+      <form id="custom-punishment-form" onsubmit="submitCustomPunishment(event)">
+        <input name="title" placeholder="Punishment Title" required />
+        <textarea name="description" placeholder="Description (optional)"></textarea>
+        <button type="submit" class="modal-submit">Add</button>
+      </form>
+    </div>
+  </div>
+
+  <script src="data/tasks.js"></script>
+  <script src="data/punishments.js"></script>
+  <script src="script.js"></script>
+</body>
+</html> 

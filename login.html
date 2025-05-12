@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Obedience Tracker Login</title>
+  <link rel="stylesheet" href="styles.css"/>
+  <style>
+    html, body {
+      height: 100%;
+      overflow: hidden;
+    }
+    body {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+      background:
+        linear-gradient(rgba(20,20,20,0.85), rgba(20,20,20,0.85)),
+        url('background.png') no-repeat center center fixed;
+      background-size: cover;
+    }
+    .login-box {
+      background: #232323;
+      width: 500px;
+      max-width: 98vw;
+      position: fixed;
+      top: 0;
+      bottom: 0;
+      left: 50%;
+      transform: translateX(-50%);
+      border-radius: 0;
+      box-shadow: 0 8px 32px rgba(0,0,0,0.3);
+      color: #fff;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: flex-start;
+    }
+    .login-box h1 { color: var(--primary-color); margin-bottom: 1.5rem; }
+    .login-box input, .login-box select {
+      width: 100%;
+      margin-bottom: 1.2rem;
+      padding: 0.8rem;
+      border-radius: 6px;
+      border: 1px solid #444;
+      background: #2d2d2d;
+      color: #fff;
+      font-size: 1rem;
+    }
+    .login-box button {
+      width: 100%;
+      background: #89221b;
+      color: #fff;
+      border: none;
+      border-radius: 6px;
+      padding: 0.9rem;
+      font-size: 1.1rem;
+      cursor: pointer;
+      margin-top: 0.5rem;
+    }
+    .login-box button:hover { background: #a63a2e; }
+    .login-box .error { color: #ff7675; margin-bottom: 1rem; }
+    #login-form {
+      width: 100%;
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      justify-content: flex-start;
+      padding: 0 2rem 2.5rem 2rem;
+      box-sizing: border-box;
+    }
+  </style>
+</head>
+<body>
+  <div class="login-box">
+    <img src="logo.png" alt="Logo" style="display:block;width:100%;height:auto;margin:0 0 2.5rem 0;" />
+    <form id="login-form" onsubmit="return handleLogin(event)" style="width:100%;flex:1;display:flex;flex-direction:column;justify-content:flex-start;">
+      <input name="username" placeholder="Username" required />
+      <input name="password" type="password" placeholder="Password" required />
+      <select name="role" id="role-select" required>
+        <option value="">Select Role</option>
+        <option value="dominant">Dominant</option>
+        <option value="submissive">Submissive</option>
+      </select>
+      <div class="error" id="login-error"></div>
+      <button type="submit" id="login-btn">Sign Up / Login</button>
+    </form>
+  </div>
+  <script>
+    // Check if user is already logged in
+    if (localStorage.getItem('user')) {
+      window.location.href = 'index.html';
+    }
+
+    // Helper to get all accounts
+    function getAccounts() {
+      return JSON.parse(localStorage.getItem('accounts') || '[]');
+    }
+    // Helper to save all accounts
+    function saveAccounts(accounts) {
+      localStorage.setItem('accounts', JSON.stringify(accounts));
+    }
+
+    // Update role dropdown based on username
+    document.querySelector('input[name="username"]').addEventListener('input', function(e) {
+      const username = e.target.value.trim();
+      const accounts = getAccounts();
+      const found = accounts.find(acc => acc.username === username);
+      const roleSelect = document.getElementById('role-select');
+      for (let i = 0; i < roleSelect.options.length; i++) {
+        roleSelect.options[i].disabled = false;
+      }
+      if (found) {
+        roleSelect.value = found.role;
+        for (let i = 0; i < roleSelect.options.length; i++) {
+          if (roleSelect.options[i].value !== found.role && roleSelect.options[i].value !== "") {
+            roleSelect.options[i].disabled = true;
+          }
+        }
+      } else {
+        roleSelect.value = "";
+      }
+    });
+
+    function handleLogin(e) {
+      e.preventDefault();
+      const form = e.target;
+      const username = form.username.value.trim();
+      const password = form.password.value;
+      const role = form.role.value;
+      const error = document.getElementById('login-error');
+      let accounts = getAccounts();
+      const found = accounts.find(acc => acc.username === username);
+      if (!found) {
+        // New signup
+        accounts.push({ username, password, role });
+        saveAccounts(accounts);
+        localStorage.setItem('user', username);
+        window.location.href = 'portal.html';
+        return false;
+      } else {
+        // Login
+        if (password === found.password) {
+          localStorage.setItem('user', username);
+          window.location.href = 'portal.html';
+          return false;
+        } else {
+          error.textContent = 'Invalid username or password.';
+          return false;
+        }
+      }
+    }
+  </script>
+</body>
+</html> 

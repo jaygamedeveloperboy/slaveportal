@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>My Slaveboy Portal</title>
+  <link rel="stylesheet" href="styles.css"/>
+  <style>
+    body {
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      background:
+        linear-gradient(rgba(20,20,20,0.85), rgba(20,20,20,0.85)),
+        url('background.png') no-repeat center center fixed;
+      background-size: cover;
+    }
+    .portal-options {
+      display: flex;
+      gap: 2.5rem;
+      margin-bottom: 2.5rem;
+      flex-wrap: wrap;
+      justify-content: center;
+    }
+    .portal-card {
+      background: #303030;
+      border-radius: 16px;
+      box-shadow: 0 4px 24px rgba(0,0,0,0.25);
+      padding: 2.5rem 2.5rem 2rem 2.5rem;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      cursor: pointer;
+      transition: box-shadow 0.2s, transform 0.2s;
+      width: 320px;
+      height: 380px;
+      justify-content: flex-start;
+    }
+    .portal-card:hover {
+      box-shadow: 0 8px 32px #B52D23;
+      transform: translateY(-4px) scale(1.03);
+    }
+    .portal-card img {
+      max-height: 110px;
+      width: auto;
+      margin-bottom: 1.2rem;
+      display: block;
+    }
+    .portal-card img[alt="Obedience Tracker Logo"] {
+      height: 110px;
+      width: auto;
+      margin-bottom: 1.2rem;
+    }
+    .portal-card img[alt="Bluff & Bind Logo"] {
+      max-height: 130px;
+    }
+    .portal-card .card-title {
+      font-size: 1.3rem;
+      color: #B52D23;
+      font-weight: bold;
+      margin-bottom: 0.5rem;
+      text-align: center;
+    }
+    .portal-card .card-desc {
+      color: #fff;
+      text-align: center;
+      font-size: 1rem;
+    }
+    #bluff-iframe {
+      width: 98vw;
+      max-width: 1400px;
+      height: 92vh;
+      border: 3px solid #B52D23;
+      border-radius: 12px;
+      display: none;
+      margin: 0 auto 2rem auto;
+      background: #222;
+      z-index: 2;
+    }
+    #home-btn {
+      display: none;
+      position: fixed;
+      top: 32px;
+      left: 32px;
+      z-index: 10;
+      background: #303030;
+      color: #fff;
+      border: 2px solid #B52D23;
+      border-radius: 8px;
+      padding: 0.7rem 1.5rem;
+      font-size: 1.1rem;
+      cursor: pointer;
+      font-weight: bold;
+      transition: background 0.2s, color 0.2s;
+    }
+    #home-btn:hover {
+      background: #B52D23;
+      color: #fff;
+    }
+    #logout-btn {
+      position: fixed;
+      top: 32px;
+      right: 32px;
+      z-index: 10;
+      background: #303030;
+      color: #fff;
+      border: 2px solid #B52D23;
+      border-radius: 8px;
+      padding: 0.7rem 1.5rem;
+      font-size: 1.1rem;
+      cursor: pointer;
+      font-weight: bold;
+      transition: background 0.2s, color 0.2s;
+    }
+    #logout-btn:hover {
+      background: #B52D23;
+      color: #fff;
+    }
+    #visit-btn {
+      display: none;
+      position: fixed;
+      right: 40px;
+      bottom: 40px;
+      z-index: 20;
+      background: #303030;
+      color: #fff;
+      border: 2px solid #B52D23;
+      border-radius: 8px;
+      padding: 0.7rem 1.5rem;
+      font-size: 1.1rem;
+      cursor: pointer;
+      font-weight: bold;
+      transition: background 0.2s, color 0.2s;
+    }
+    #visit-btn:hover {
+      background: #B52D23;
+      color: #fff;
+    }
+    @media (max-width: 700px) {
+      .portal-options { flex-direction: column; gap: 1.5rem; }
+      #bluff-iframe { width: 98vw; height: 60vh; }
+    }
+  </style>
+</head>
+<body>
+  <button id="logout-btn" onclick="logout()">Logout</button>
+  <button id="home-btn" onclick="showPortal()">Back</button>
+  <button id="visit-btn" title="Open in new tab" onclick="window.open('https://bluffandbind.netlify.app/', '_blank')">Visit Webpage</button>
+  <div class="portal-options" id="portal-options">
+    <div class="portal-card" onclick="window.location.href='index.html'">
+      <img src="obedience.png" alt="Obedience Tracker Logo" />
+      <div class="card-title">Obedience Tracker</div>
+      <div class="card-desc">Track tasks, punishments, and rewards</div>
+    </div>
+    <div class="portal-card" onclick="showBluff()">
+      <img src="bluffandbind.png" alt="Bluff & Bind Logo" />
+      <div class="card-title">Bluff & Bind</div>
+      <div class="card-desc">Play the kinky bluffing game</div>
+    </div>
+  </div>
+  <iframe id="bluff-iframe" src="" allowfullscreen></iframe>
+  <script>
+    function logout() {
+      localStorage.removeItem('user');
+      window.location.href = 'login.html';
+    }
+    function showBluff() {
+      document.getElementById('portal-options').style.display = 'none';
+      document.getElementById('bluff-iframe').style.display = 'block';
+      document.getElementById('home-btn').style.display = 'block';
+      document.getElementById('visit-btn').style.display = 'block';
+      document.body.style.overflow = 'hidden';
+      var iframe = document.getElementById('bluff-iframe');
+      iframe.src = 'https://bluffandbind.netlify.app/';
+      window.scrollTo(0, 0);
+    }
+    function showPortal() {
+      document.getElementById('portal-options').style.display = 'flex';
+      document.getElementById('bluff-iframe').style.display = 'none';
+      document.getElementById('home-btn').style.display = 'none';
+      document.getElementById('visit-btn').style.display = 'none';
+      document.body.style.overflow = '';
+      var iframe = document.getElementById('bluff-iframe');
+      iframe.src = '';
+    }
+  </script>
+</body>
+</html> 
