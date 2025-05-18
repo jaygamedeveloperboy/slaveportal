@@ -102,7 +102,7 @@
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/11.7.3/firebase-app.js";
     import { getAuth, createUserWithEmailAndPassword, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.7.3/firebase-auth.js";
-    import { getFirestore, doc, setDoc } from "https://www.gstatic.com/firebasejs/11.7.3/firebase-firestore.js";
+    import { getFirestore, doc, setDoc, getDoc } from "https://www.gstatic.com/firebasejs/11.7.3/firebase-firestore.js";
 
     const firebaseConfig = {
       apiKey: "AIzaSyBDxRZC1oRlPNgYa8YQO-Ea3wEIC3O0rZo",
@@ -116,8 +116,28 @@
     const auth = getAuth(app);
     const db = getFirestore(app);
 
-    onAuthStateChanged(auth, (user) => {
-      // Remove automatic redirect here; handled after username mapping
+    onAuthStateChanged(auth, async (user) => {
+      if (user) {
+        // Check if username mapping exists
+        const userDoc = await getDoc(doc(db, "users", user.uid));
+        if (userDoc.exists()) {
+          const { username, email } = userDoc.data();
+          if (username && email) {
+            // Check if username mapping already exists
+            const usernameDoc = await getDoc(doc(db, "usernames", username));
+            if (!usernameDoc.exists()) {
+              try {
+                await setDoc(doc(db, "usernames", username), { email });
+                console.log("Username mapping written to Firestore (onAuthStateChanged)");
+              } catch (err) {
+                console.error("Error writing username mapping in onAuthStateChanged:", err);
+              }
+            }
+          }
+        }
+        // Redirect to portal
+        window.location.href = 'portal.html';
+      }
     });
 
     window.handleSignup = async function(event) {
@@ -158,20 +178,7 @@
               securityAnswer
             });
             console.log("User profile written to Firestore");
-            // Wait for authentication before writing to usernames collection
-            const unsubscribe = onAuthStateChanged(auth, async (authedUser) => {
-              if (authedUser && authedUser.uid === user.uid) {
-                try {
-                  await setDoc(doc(db, "usernames", username), { email });
-                  console.log("Username mapping written to Firestore");
-                  window.location.href = 'portal.html';
-                } catch (usernameErr) {
-                  console.error("Error writing username mapping:", usernameErr);
-                  document.getElementById('signup-error').textContent = "Error saving username mapping. Please try again.";
-                }
-                unsubscribe(); // Stop listening after first call
-              }
-            });
+            // Username mapping now handled in onAuthStateChanged
           } catch (err) {
             console.error("Error writing to Firestore:", err);
             document.getElementById('signup-error').textContent = "Error saving user data. Please try again.";
