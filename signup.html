@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Obedience Tracker Sign Up</title>
+  <link rel="stylesheet" href="styles.css"/>
+  <style>
+    html, body {
+      height: 100%;
+    }
+    body {
+      min-height: 100vh;
+      display: flex;
+      align-items: flex-start;
+      justify-content: center;
+      background:
+        linear-gradient(rgba(20,20,20,0.85), rgba(20,20,20,0.85)),
+        url('background.png') no-repeat center center fixed;
+      background-size: cover;
+      overflow-y: auto;
+      padding: 2rem 0;
+    }
+    .signup-box {
+      background: #232323;
+      width: 500px;
+      max-width: 98vw;
+      margin: 0 auto;
+      border-radius: 0;
+      box-shadow: 0 8px 32px rgba(0,0,0,0.3);
+      color: #fff;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: flex-start;
+      position: relative;
+    }
+    .signup-box h1 { color: var(--primary-color); margin-bottom: 1.5rem; }
+    .signup-box input, .signup-box select {
+      width: 100%;
+      margin-bottom: 1.2rem;
+      padding: 0.8rem;
+      border-radius: 6px;
+      border: 1px solid #444;
+      background: #2d2d2d;
+      color: #fff;
+      font-size: 1rem;
+    }
+    .signup-box button {
+      width: 100%;
+      background: #89221b;
+      color: #fff;
+      border: none;
+      border-radius: 6px;
+      padding: 0.9rem;
+      font-size: 1.1rem;
+      cursor: pointer;
+      margin-top: 0.5rem;
+    }
+    .signup-box button:hover { background: #a63a2e; }
+    .signup-box .error { color: #ff7675; margin-bottom: 1rem; }
+    #signup-form {
+      width: 100%;
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      justify-content: flex-start;
+      padding: 0 2rem 2.5rem 2rem;
+      box-sizing: border-box;
+    }
+  </style>
+</head>
+<body>
+  <div class="signup-box">
+    <img src="logo.png" alt="Logo" style="display:block;width:100%;height:auto;margin:0 0 2.5rem 0;" />
+    <form id="signup-form" onsubmit="return handleSignup(event)" style="width:100%;flex:1;display:flex;flex-direction:column;justify-content:flex-start;">
+      <input name="username" placeholder="Username" required />
+      <input name="password" type="password" placeholder="Password" required />
+      <input name="name" id="name-input" placeholder="Display Name" required />
+      <select name="security-question" required>
+        <option value="">Select Security Question</option>
+        <option value="pet">What was your first pet's name?</option>
+        <option value="school">What was your first school's name?</option>
+        <option value="city">In which city were you born?</option>
+        <option value="mother">What is your mother's maiden name?</option>
+        <option value="street">What street did you grow up on?</option>
+      </select>
+      <input name="security-answer" placeholder="Security Answer" required />
+      <label for="avatar-input" style="margin-bottom:0.3rem;">Avatar (image or emoji):</label>
+      <input type="file" id="avatar-input" accept="image/*" style="margin-bottom:0.5rem;" />
+      <input name="avatar-emoji" id="avatar-emoji" placeholder="Or emoji (e.g. 😈)" maxlength="2" style="margin-bottom:1.2rem;" />
+      <select name="role" id="role-select" required>
+        <option value="">Select Role</option>
+        <option value="dominant">Dominant</option>
+        <option value="submissive">Submissive</option>
+      </select>
+      <div class="error" id="signup-error"></div>
+      <button type="submit" id="signup-btn">Sign Up</button>
+    </form>
+  </div>
+  <script>
+    // Check if user is already logged in
+    if (localStorage.getItem('user')) {
+      window.location.href = 'portal.html';
+    }
+
+    // Helper to get all accounts
+    function getAccounts() {
+      return JSON.parse(localStorage.getItem('accounts') || '[]');
+    }
+    // Helper to save all accounts
+    function saveAccounts(accounts) {
+      localStorage.setItem('accounts', JSON.stringify(accounts));
+    }
+
+    async function handleSignup(event) {
+      event.preventDefault();
+      const form = event.target;
+      const username = form.username.value.trim();
+      const password = form.password.value;
+      const name = form.name.value.trim();
+      const role = form.role.value;
+      const securityQuestion = form['security-question'].value;
+      const securityAnswer = form['security-answer'].value.trim();
+      const avatarEmoji = form['avatar-emoji'].value.trim();
+      const avatarInput = document.getElementById('avatar-input');
+      let avatar = '';
+      if (avatarInput.files && avatarInput.files[0]) {
+        // Convert image to data URL
+        const file = avatarInput.files[0];
+        avatar = await new Promise(resolve => {
+          const reader = new FileReader();
+          reader.onload = e => resolve(e.target.result);
+          reader.readAsDataURL(file);
+        });
+      } else if (avatarEmoji) {
+        avatar = avatarEmoji;
+      }
+      let accounts = getAccounts();
+      let user = accounts.find(acc => acc.username === username);
+      if (user) {
+        document.getElementById('signup-error').textContent = 'Username already exists.';
+        return false;
+      }
+      // New signup
+      user = { 
+        username, 
+        password, 
+        name, 
+        role, 
+        avatar,
+        securityQuestion,
+        securityAnswer
+      };
+      accounts.push(user);
+      saveAccounts(accounts);
+      // Save user to localStorage
+      localStorage.setItem('user', JSON.stringify(user));
+      window.location.href = 'portal.html';
+      return false;
+    }
+    window.handleSignup = handleSignup;
+  </script>
+</body>
+</html> 
