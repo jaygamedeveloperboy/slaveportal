@@ -149,20 +149,28 @@
       createUserWithEmailAndPassword(auth, email, password)
         .then(async (userCredential) => {
           const user = userCredential.user;
-          await setDoc(doc(db, "users", user.uid), {
-            username,
-            email,
-            name,
-            role,
-            avatar,
-            securityQuestion,
-            securityAnswer
-          });
-          await setDoc(doc(db, "usernames", username), { email });
-          window.location.href = 'portal.html';
+          try {
+            await setDoc(doc(db, "users", user.uid), {
+              username,
+              email,
+              name,
+              role,
+              avatar,
+              securityQuestion,
+              securityAnswer
+            });
+            console.log("User profile written to Firestore");
+            await setDoc(doc(db, "usernames", username), { email });
+            console.log("Username mapping written to Firestore");
+            window.location.href = 'portal.html';
+          } catch (err) {
+            console.error("Error writing to Firestore:", err);
+            document.getElementById('signup-error').textContent = "Error saving user data. Please try again.";
+          }
         })
         .catch((error) => {
           document.getElementById('signup-error').textContent = error.message;
+          console.error("Signup error:", error);
         });
       return false;
     }
