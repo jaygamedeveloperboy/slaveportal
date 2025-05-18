@@ -1,3 +1,311 @@
 <!DOCTYPE html>
 <!-- This is a backup of login.html before the minimal test overwrite -->
-// ... previous login.html content ... 
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Obedience Tracker Login</title>
+  <link rel="stylesheet" href="styles.css"/>
+  <style>
+    html {
+      height: 100%;
+      background:
+        linear-gradient(rgba(20,20,20,0.85), rgba(20,20,20,0.85)),
+        url('background.png') no-repeat center center fixed;
+      background-size: cover;
+    }
+    body {
+      min-height: 100vh;
+      display: flex;
+      align-items: flex-start;
+      justify-content: center;
+      overflow-y: auto;
+      background: none;
+    }
+    .login-box {
+      background: #232323;
+      width: 500px;
+      max-width: 98vw;
+      margin: 2rem auto;
+      border-radius: 0;
+      box-shadow: 0 8px 32px rgba(0,0,0,0.3);
+      color: #fff;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: flex-start;
+      position: relative;
+    }
+    .login-box h1 { color: var(--primary-color); margin-bottom: 1.5rem; }
+    .login-box input, .login-box select {
+      width: 100%;
+      margin-bottom: 1.2rem;
+      padding: 0.8rem;
+      border-radius: 6px;
+      border: 1px solid #444;
+      background: #2d2d2d;
+      color: #fff;
+      font-size: 1rem;
+    }
+    .login-box button {
+      width: 100%;
+      background: #89221b;
+      color: #fff;
+      border: none;
+      border-radius: 6px;
+      padding: 0.9rem;
+      font-size: 1.1rem;
+      cursor: pointer;
+      margin-top: 0.5rem;
+    }
+    .login-box button:hover { background: #a63a2e; }
+    .login-box .error { color: #ff7675; margin-bottom: 1rem; }
+    #login-form {
+      width: 100%;
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      justify-content: flex-start;
+      padding: 0 2rem 2.5rem 2rem;
+      box-sizing: border-box;
+    }
+    .forgot-password {
+      color: #fff;
+      text-decoration: underline;
+      cursor: pointer;
+      margin-top: 1rem;
+      text-align: center;
+    }
+    .modal {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0,0,0,0.8);
+      z-index: 1000;
+      align-items: center;
+      justify-content: center;
+    }
+    .modal-content {
+      background: #232323;
+      width: 100%;
+      max-width: 420px;
+      margin: 2rem auto;
+      padding: 2.5rem 2rem 2rem 2rem;
+      border-radius: 18px;
+      position: relative;
+      box-shadow: 0 8px 32px rgba(0,0,0,0.3);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+    .modal-content h2 {
+      color: #B52D23;
+      font-size: 2.1rem;
+      font-weight: bold;
+      margin-bottom: 2rem;
+      text-align: left;
+      width: 100%;
+    }
+    .modal-content input {
+      width: 100%;
+      margin-bottom: 1.2rem;
+      padding: 0.8rem;
+      border-radius: 6px;
+      border: 1px solid #444;
+      background: #2d2d2d;
+      color: #fff;
+      font-size: 1rem;
+      box-sizing: border-box;
+    }
+    .modal-content button[type="submit"] {
+      width: 100%;
+      background: #89221b;
+      color: #fff;
+      border: none;
+      border-radius: 12px;
+      padding: 1rem;
+      font-size: 1.3rem;
+      cursor: pointer;
+      margin-top: 0.5rem;
+      font-weight: bold;
+      transition: background 0.2s;
+    }
+    .modal-content button[type="submit"]:hover {
+      background: #a63a2e;
+    }
+    .modal-content .error {
+      color: #ff7675;
+      margin-bottom: 1rem;
+      width: 100%;
+      text-align: left;
+    }
+    .modal-content label, .modal-content p {
+      color: #fff;
+      font-size: 1rem;
+      margin-bottom: 0.5rem;
+      width: 100%;
+      text-align: left;
+    }
+    .close-modal {
+      position: absolute;
+      right: 1.2rem;
+      top: 1.2rem;
+      color: #fff;
+      font-size: 2rem;
+      cursor: pointer;
+      background: none;
+      border: none;
+      z-index: 10;
+    }
+  </style>
+</head>
+<body>
+  <div class="login-box">
+    <img src="logo.png" alt="Logo" style="display:block;width:100%;height:auto;margin:0 0 2.5rem 0;" />
+    <form id="login-form" onsubmit="return handleLogin(event)" style="width:100%;flex:1;display:flex;flex-direction:column;justify-content:flex-start;">
+      <input name="username" placeholder="Username" required />
+      <input name="password" type="password" placeholder="Password" required />
+      <div class="error" id="login-error"></div>
+      <button type="submit" id="login-btn">Login</button>
+      <button type="button" id="signup-btn" onclick="window.location.href='signup.html'" style="margin-top: 1rem;">Sign Up</button>
+      <div class="forgot-password" onclick="showForgotPassword()">Forgot Password?</div>
+    </form>
+  </div>
+
+  <!-- Forgot Password Modal -->
+  <div id="forgot-password-modal" class="modal">
+    <div class="modal-content">
+      <span class="close-modal" onclick="closeForgotPassword()">&times;</span>
+      <h2>Forgot Password</h2>
+      <form id="forgot-password-form" onsubmit="return handleForgotPassword(event)">
+        <input name="username" placeholder="Username" />
+        <div id="security-question-container" style="display: none;">
+          <p id="security-question-text"></p>
+          <input name="security-answer" placeholder="Your Answer" />
+        </div>
+        <div id="new-password-container" style="display: none;">
+          <input name="new-password" type="password" placeholder="New Password" />
+          <input name="confirm-password" type="password" placeholder="Confirm New Password" />
+        </div>
+        <div class="error" id="forgot-password-error"></div>
+        <button type="submit" id="forgot-password-btn">Continue</button>
+      </form>
+    </div>
+  </div>
+
+  <script>
+    // Check if user is already logged in
+    if (localStorage.getItem('user')) {
+      window.location.href = 'portal.html';
+    }
+
+    // Helper to get all accounts
+    function getAccounts() {
+      return JSON.parse(localStorage.getItem('accounts') || '[]');
+    }
+
+    function handleLogin(event) {
+      event.preventDefault();
+      const form = event.target;
+      const username = form.username.value.trim();
+      const password = form.password.value;
+      let accounts = getAccounts();
+      let user = accounts.find(acc => acc.username === username);
+      if (!user) {
+        document.getElementById('login-error').textContent = 'User not found. Please sign up.';
+        setTimeout(() => { window.location.href = 'signup.html'; }, 2000);
+        return false;
+      } else if (user.password !== password) {
+        document.getElementById('login-error').textContent = 'Incorrect password.';
+        return false;
+      }
+      // Save user to localStorage
+      localStorage.setItem('user', JSON.stringify(user));
+      window.location.href = 'portal.html';
+      return false;
+    }
+
+    let currentUser = null;
+    let recoveryStep = 1;
+
+    function showForgotPassword() {
+      document.getElementById('forgot-password-modal').style.display = 'block';
+      document.getElementById('security-question-container').style.display = 'none';
+      document.getElementById('new-password-container').style.display = 'none';
+      document.getElementById('forgot-password-btn').textContent = 'Continue';
+      document.getElementById('forgot-password-error').textContent = '';
+      recoveryStep = 1;
+    }
+
+    function closeForgotPassword() {
+      document.getElementById('forgot-password-modal').style.display = 'none';
+      document.getElementById('forgot-password-form').reset();
+      document.getElementById('forgot-password-error').textContent = '';
+      recoveryStep = 1;
+      currentUser = null;
+    }
+
+    function handleForgotPassword(event) {
+      event.preventDefault();
+      const form = event.target;
+      const accounts = getAccounts();
+
+      if (recoveryStep === 1) {
+        // Step 1: Enter username
+        const username = form.username.value.trim();
+        const user = accounts.find(acc => acc.username === username);
+        if (!user) {
+          document.getElementById('forgot-password-error').textContent = 'User not found.';
+          return false;
+        }
+        currentUser = user;
+        document.getElementById('security-question-text').textContent = user.securityQuestion;
+        document.getElementById('security-question-container').style.display = 'block';
+        document.getElementById('forgot-password-btn').textContent = 'Verify Answer';
+        recoveryStep = 2;
+        return false;
+      }
+
+      if (recoveryStep === 2) {
+        // Step 2: Answer security question
+        const answer = form['security-answer'].value.trim();
+        if (answer.toLowerCase() !== currentUser.securityAnswer.toLowerCase()) {
+          document.getElementById('forgot-password-error').textContent = 'Incorrect answer.';
+          return false;
+        }
+        document.getElementById('new-password-container').style.display = 'block';
+        document.getElementById('forgot-password-btn').textContent = 'Reset Password';
+        recoveryStep = 3;
+        return false;
+      }
+
+      if (recoveryStep === 3) {
+        // Step 3: Set new password
+        const newPassword = form['new-password'].value;
+        const confirmPassword = form['confirm-password'].value;
+        if (newPassword !== confirmPassword) {
+          document.getElementById('forgot-password-error').textContent = 'Passwords do not match.';
+          return false;
+        }
+        // Update password
+        currentUser.password = newPassword;
+        const updatedAccounts = accounts.map(acc =>
+          acc.username === currentUser.username ? currentUser : acc
+        );
+        localStorage.setItem('accounts', JSON.stringify(updatedAccounts));
+        alert('Password has been reset successfully. Please login with your new password.');
+        closeForgotPassword();
+        return false;
+      }
+    }
+
+    window.handleLogin = handleLogin;
+    window.showForgotPassword = showForgotPassword;
+    window.closeForgotPassword = closeForgotPassword;
+    window.handleForgotPassword = handleForgotPassword;
+  </script>
+</body>
+</html> 
