@@ -41,4 +41,6 @@ const tasks = [
     linkedReward: "",
     proofs: []
   }
-]; 
+];
+
+export { tasks }; 
