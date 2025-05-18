@@ -103,6 +103,7 @@
     import { initializeApp } from "https://www.gstatic.com/firebasejs/11.7.3/firebase-app.js";
     import { getAuth, createUserWithEmailAndPassword, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.7.3/firebase-auth.js";
     import { getFirestore, doc, setDoc, getDoc } from "https://www.gstatic.com/firebasejs/11.7.3/firebase-firestore.js";
+    import { getStorage, ref as storageRef, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/11.7.3/firebase-storage.js";
 
     const firebaseConfig = {
       apiKey: "AIzaSyBDxRZC1oRlPNgYa8YQO-Ea3wEIC3O0rZo",
@@ -153,21 +154,27 @@
       const avatarEmoji = form['avatar-emoji'].value.trim();
       const avatarInput = document.getElementById('avatar-input');
       let avatar = '';
+      let avatarIsImage = false;
+
       if (avatarInput.files && avatarInput.files[0]) {
-        // Convert image to data URL
-        const file = avatarInput.files[0];
-        avatar = await new Promise(resolve => {
-          const reader = new FileReader();
-          reader.onload = e => resolve(e.target.result);
-          reader.readAsDataURL(file);
-        });
+        avatarIsImage = true;
       } else if (avatarEmoji) {
         avatar = avatarEmoji;
       }
+
       createUserWithEmailAndPassword(auth, email, password)
         .then(async (userCredential) => {
           const user = userCredential.user;
           try {
+            // If avatar is an image, upload to Firebase Storage
+            if (avatarIsImage) {
+              const file = avatarInput.files[0];
+              const storage = getStorage(app);
+              const fileRef = storageRef(storage, `avatars/${user.uid}/${file.name}`);
+              await uploadBytes(fileRef, file);
+              avatar = await getDownloadURL(fileRef);
+            }
+
             await setDoc(doc(db, "users", user.uid), {
               username,
               email,
@@ -178,7 +185,7 @@
               securityAnswer
             });
             console.log("User profile written to Firestore");
-            // Username mapping now handled in onAuthStateChanged
+            // Username mapping handled in onAuthStateChanged
           } catch (err) {
             console.error("Error writing to Firestore:", err);
             document.getElementById('signup-error').textContent = "Error saving user data. Please try again.";
