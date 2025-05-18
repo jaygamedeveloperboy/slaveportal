@@ -12,10 +12,8 @@ const auth = getAuth();
 onAuthStateChanged(auth, (user) => {
   if (!user) {
     window.location.href = 'login.html';
-  } else {
-    // Only show the habits page if the user is authenticated
-    switchPage('habits-page');
   }
+  // else: user is logged in, continue loading the page
 });
 
 // Initialize the app
@@ -1522,9 +1520,4 @@ async function submitProof(event) {
 }
 
 window.closeProofModal = closeProofModal;
-window.submitProof = submitProof;
-
-document.addEventListener('DOMContentLoaded', () => {
-  // Set initial page
-  switchPage('habits-page');
-}); 
+window.submitProof = submitProof; 
