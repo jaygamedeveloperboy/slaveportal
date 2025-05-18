@@ -75,6 +75,7 @@
     <img src="logo.png" alt="Logo" style="display:block;width:100%;height:auto;margin:0 0 2.5rem 0;" />
     <form id="signup-form" onsubmit="return handleSignup(event)" style="width:100%;flex:1;display:flex;flex-direction:column;justify-content:flex-start;">
       <input name="username" placeholder="Username" required />
+      <input name="email" placeholder="Email" required />
       <input name="password" type="password" placeholder="Password" required />
       <input name="name" id="name-input" placeholder="Display Name" required />
       <select name="security-question" required>
@@ -98,25 +99,38 @@
       <button type="submit" id="signup-btn">Sign Up</button>
     </form>
   </div>
-  <script>
-    // Check if user is already logged in
-    if (localStorage.getItem('user')) {
-      window.location.href = 'portal.html';
-    }
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/11.7.3/firebase-app.js";
+    import { getAuth, createUserWithEmailAndPassword, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.7.3/firebase-auth.js";
+    import { getFirestore, doc, setDoc } from "https://www.gstatic.com/firebasejs/11.7.3/firebase-firestore.js";
 
-    // Helper to get all accounts
-    function getAccounts() {
-      return JSON.parse(localStorage.getItem('accounts') || '[]');
-    }
-    // Helper to save all accounts
-    function saveAccounts(accounts) {
-      localStorage.setItem('accounts', JSON.stringify(accounts));
-    }
+    // Your web app's Firebase configuration
+    const firebaseConfig = {
+      apiKey: "AIzaSyBDxRZC1oRlPNgYa8YQO-Ea3wEIC3O0rZo",
+      authDomain: "habit-tracker-e3621.firebaseapp.com",
+      projectId: "habit-tracker-e3621",
+      storageBucket: "habit-tracker-e3621.firebasestorage.app",
+      messagingSenderId: "171435134738",
+      appId: "1:171435134738:web:e8c3d14f254601f65b2dcb"
+    };
 
-    async function handleSignup(event) {
+    // Initialize Firebase
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const db = getFirestore(app);
+
+    // Redirect if already logged in
+    onAuthStateChanged(auth, (user) => {
+      if (user) {
+        window.location.href = 'portal.html';
+      }
+    });
+
+    window.handleSignup = async function(event) {
       event.preventDefault();
       const form = event.target;
       const username = form.username.value.trim();
+      const email = form.email.value.trim();
       const password = form.password.value;
       const name = form.name.value.trim();
       const role = form.role.value;
@@ -136,30 +150,40 @@
       } else if (avatarEmoji) {
         avatar = avatarEmoji;
       }
-      let accounts = getAccounts();
-      let user = accounts.find(acc => acc.username === username);
-      if (user) {
-        document.getElementById('signup-error').textContent = 'Username already exists.';
-        return false;
-      }
-      // New signup
-      user = { 
-        username, 
-        password, 
-        name, 
-        role, 
-        avatar,
-        securityQuestion,
-        securityAnswer
-      };
-      accounts.push(user);
-      saveAccounts(accounts);
-      // Save user to localStorage
-      localStorage.setItem('user', JSON.stringify(user));
-      window.location.href = 'portal.html';
+      // Register user with Firebase Auth
+      createUserWithEmailAndPassword(auth, email, password)
+        .then(async (userCredential) => {
+          // Save user profile to Firestore
+          const user = userCredential.user;
+          await setDoc(doc(db, "users", user.uid), {
+            username,
+            email,
+            name,
+            role,
+            avatar,
+            securityQuestion,
+            securityAnswer
+          });
+          // Save username to email mapping
+          await setDoc(doc(db, "usernames", username), { email });
+          // Optionally, store user info in localStorage for quick access
+          localStorage.setItem('user', JSON.stringify({
+            uid: user.uid,
+            username,
+            email,
+            name,
+            role,
+            avatar,
+            securityQuestion,
+            securityAnswer
+          }));
+          window.location.href = 'portal.html';
+        })
+        .catch((error) => {
+          document.getElementById('signup-error').textContent = error.message;
+        });
       return false;
     }
-    window.handleSignup = handleSignup;
   </script>
 </body>
 </html> 

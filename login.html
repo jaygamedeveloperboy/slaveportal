@@ -195,35 +195,61 @@
     </div>
   </div>
 
-  <script>
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/11.7.3/firebase-app.js";
+    import { getAuth, signInWithEmailAndPassword, onAuthStateChanged, sendPasswordResetEmail } from "https://www.gstatic.com/firebasejs/11.7.3/firebase-auth.js";
+    import { getFirestore, doc, getDoc } from "https://www.gstatic.com/firebasejs/11.7.3/firebase-firestore.js";
+
+    // Your web app's Firebase configuration
+    const firebaseConfig = {
+      apiKey: "AIzaSyBDxRZC1oRlPNgYa8YQO-Ea3wEIC3O0rZo",
+      authDomain: "habit-tracker-e3621.firebaseapp.com",
+      projectId: "habit-tracker-e3621",
+      storageBucket: "habit-tracker-e3621.firebasestorage.app",
+      messagingSenderId: "171435134738",
+      appId: "1:171435134738:web:e8c3d14f254601f65b2dcb"
+    };
+
+    // Initialize Firebase
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const db = getFirestore(app);
+
     // Check if user is already logged in
-    if (localStorage.getItem('user')) {
-      window.location.href = 'portal.html';
-    }
+    onAuthStateChanged(auth, (user) => {
+      if (user) {
+        window.location.href = 'portal.html';
+      }
+    });
 
-    // Helper to get all accounts
-    function getAccounts() {
-      return JSON.parse(localStorage.getItem('accounts') || '[]');
-    }
-
-    function handleLogin(event) {
+    window.handleLogin = async function(event) {
       event.preventDefault();
       const form = event.target;
       const username = form.username.value.trim();
       const password = form.password.value;
-      let accounts = getAccounts();
-      let user = accounts.find(acc => acc.username === username);
-      if (!user) {
-        document.getElementById('login-error').textContent = 'User not found. Please sign up.';
-        setTimeout(() => { window.location.href = 'signup.html'; }, 2000);
-        return false;
-      } else if (user.password !== password) {
-        document.getElementById('login-error').textContent = 'Incorrect password.';
+      // Look up email by username
+      const usernameDoc = await getDoc(doc(db, "usernames", username));
+      if (!usernameDoc.exists()) {
+        document.getElementById('login-error').textContent = 'Username not found.';
         return false;
       }
-      // Save user to localStorage
-      localStorage.setItem('user', JSON.stringify(user));
-      window.location.href = 'portal.html';
+      const email = usernameDoc.data().email;
+      signInWithEmailAndPassword(auth, email, password)
+        .then(async (userCredential) => {
+          // Fetch user profile from Firestore
+          const user = userCredential.user;
+          const userDoc = await getDoc(doc(db, "users", user.uid));
+          if (userDoc.exists()) {
+            localStorage.setItem('user', JSON.stringify({ uid: user.uid, ...userDoc.data() }));
+          } else {
+            // fallback: store minimal info
+            localStorage.setItem('user', JSON.stringify({ uid: user.uid, email: user.email }));
+          }
+          window.location.href = 'portal.html';
+        })
+        .catch((error) => {
+          document.getElementById('login-error').textContent = error.message;
+        });
       return false;
     }
 
@@ -247,64 +273,20 @@
       currentUser = null;
     }
 
-    function handleForgotPassword(event) {
+    window.handleForgotPassword = function(event) {
       event.preventDefault();
       const form = event.target;
-      const accounts = getAccounts();
-
-      if (recoveryStep === 1) {
-        // Step 1: Enter username
-        const username = form.username.value.trim();
-        const user = accounts.find(acc => acc.username === username);
-        if (!user) {
-          document.getElementById('forgot-password-error').textContent = 'User not found.';
-          return false;
-        }
-        currentUser = user;
-        document.getElementById('security-question-text').textContent = user.securityQuestion;
-        document.getElementById('security-question-container').style.display = 'block';
-        document.getElementById('forgot-password-btn').textContent = 'Verify Answer';
-        recoveryStep = 2;
-        return false;
-      }
-
-      if (recoveryStep === 2) {
-        // Step 2: Answer security question
-        const answer = form['security-answer'].value.trim();
-        if (answer.toLowerCase() !== currentUser.securityAnswer.toLowerCase()) {
-          document.getElementById('forgot-password-error').textContent = 'Incorrect answer.';
-          return false;
-        }
-        document.getElementById('new-password-container').style.display = 'block';
-        document.getElementById('forgot-password-btn').textContent = 'Reset Password';
-        recoveryStep = 3;
-        return false;
-      }
-
-      if (recoveryStep === 3) {
-        // Step 3: Set new password
-        const newPassword = form['new-password'].value;
-        const confirmPassword = form['confirm-password'].value;
-        if (newPassword !== confirmPassword) {
-          document.getElementById('forgot-password-error').textContent = 'Passwords do not match.';
-          return false;
-        }
-        // Update password
-        currentUser.password = newPassword;
-        const updatedAccounts = accounts.map(acc =>
-          acc.username === currentUser.username ? currentUser : acc
-        );
-        localStorage.setItem('accounts', JSON.stringify(updatedAccounts));
-        alert('Password has been reset successfully. Please login with your new password.');
-        closeForgotPassword();
-        return false;
-      }
+      const email = form.username.value.trim();
+      sendPasswordResetEmail(auth, email)
+        .then(() => {
+          alert('Password reset email sent! Check your inbox.');
+          window.closeForgotPassword();
+        })
+        .catch((error) => {
+          document.getElementById('forgot-password-error').textContent = error.message;
+        });
+      return false;
     }
-
-    window.handleLogin = handleLogin;
-    window.showForgotPassword = showForgotPassword;
-    window.closeForgotPassword = closeForgotPassword;
-    window.handleForgotPassword = handleForgotPassword;
   </script>
 </body>
 </html> 
