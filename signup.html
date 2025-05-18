@@ -104,7 +104,6 @@
     import { getAuth, createUserWithEmailAndPassword, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.7.3/firebase-auth.js";
     import { getFirestore, doc, setDoc } from "https://www.gstatic.com/firebasejs/11.7.3/firebase-firestore.js";
 
-    // Your web app's Firebase configuration
     const firebaseConfig = {
       apiKey: "AIzaSyBDxRZC1oRlPNgYa8YQO-Ea3wEIC3O0rZo",
       authDomain: "habit-tracker-e3621.firebaseapp.com",
@@ -113,13 +112,10 @@
       messagingSenderId: "171435134738",
       appId: "1:171435134738:web:e8c3d14f254601f65b2dcb"
     };
-
-    // Initialize Firebase
     const app = initializeApp(firebaseConfig);
     const auth = getAuth(app);
     const db = getFirestore(app);
 
-    // Redirect if already logged in
     onAuthStateChanged(auth, (user) => {
       if (user) {
         window.location.href = 'portal.html';
@@ -150,10 +146,8 @@
       } else if (avatarEmoji) {
         avatar = avatarEmoji;
       }
-      // Register user with Firebase Auth
       createUserWithEmailAndPassword(auth, email, password)
         .then(async (userCredential) => {
-          // Save user profile to Firestore
           const user = userCredential.user;
           await setDoc(doc(db, "users", user.uid), {
             username,
@@ -164,19 +158,7 @@
             securityQuestion,
             securityAnswer
           });
-          // Save username to email mapping
           await setDoc(doc(db, "usernames", username), { email });
-          // Optionally, store user info in localStorage for quick access
-          localStorage.setItem('user', JSON.stringify({
-            uid: user.uid,
-            username,
-            email,
-            name,
-            role,
-            avatar,
-            securityQuestion,
-            securityAnswer
-          }));
           window.location.href = 'portal.html';
         })
         .catch((error) => {
