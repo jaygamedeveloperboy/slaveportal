@@ -1,11 +1,20 @@
 import { notes } from './data/notes.js';
 import { rewards } from './data/rewards.js';
 import { punishments } from './data/punishments.js';
+import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.7.3/firebase-auth.js";
 // Remove Firebase import
 // import { db, ref, set, get, onValue, push, update } from './firebase.js';
 
 let totalPoints = 0;
 let showAddPunishments = false;
+
+const auth = getAuth();
+onAuthStateChanged(auth, (user) => {
+  if (!user) {
+    window.location.href = 'login.html';
+  }
+  // else: user is logged in, continue loading the page
+});
 
 // Initialize the app
 function init() {
