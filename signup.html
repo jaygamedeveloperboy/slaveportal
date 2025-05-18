@@ -117,9 +117,7 @@
     const db = getFirestore(app);
 
     onAuthStateChanged(auth, (user) => {
-      if (user) {
-        window.location.href = 'portal.html';
-      }
+      // Remove automatic redirect here; handled after username mapping
     });
 
     window.handleSignup = async function(event) {
@@ -160,9 +158,20 @@
               securityAnswer
             });
             console.log("User profile written to Firestore");
-            await setDoc(doc(db, "usernames", username), { email });
-            console.log("Username mapping written to Firestore");
-            window.location.href = 'portal.html';
+            // Wait for authentication before writing to usernames collection
+            const unsubscribe = onAuthStateChanged(auth, async (authedUser) => {
+              if (authedUser && authedUser.uid === user.uid) {
+                try {
+                  await setDoc(doc(db, "usernames", username), { email });
+                  console.log("Username mapping written to Firestore");
+                  window.location.href = 'portal.html';
+                } catch (usernameErr) {
+                  console.error("Error writing username mapping:", usernameErr);
+                  document.getElementById('signup-error').textContent = "Error saving username mapping. Please try again.";
+                }
+                unsubscribe(); // Stop listening after first call
+              }
+            });
           } catch (err) {
             console.error("Error writing to Firestore:", err);
             document.getElementById('signup-error').textContent = "Error saving user data. Please try again.";
