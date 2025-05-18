@@ -185,77 +185,7 @@
     </div>
   </div>
 
-  <script src="data/tasks.js"></script>
-  <script src="data/punishments.js"></script>
-  <script type="module">
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/11.7.3/firebase-app.js";
-    import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/11.7.3/firebase-auth.js";
-    import { getFirestore, doc, getDoc } from "https://www.gstatic.com/firebasejs/11.7.3/firebase-firestore.js";
-
-    const firebaseConfig = {
-      apiKey: "AIzaSyBDxRZC1oRlPNgYa8YQO-Ea3wEIC3O0rZo",
-      authDomain: "habit-tracker-e3621.firebaseapp.com",
-      projectId: "habit-tracker-e3621",
-      storageBucket: "habit-tracker-e3621.firebasestorage.app",
-      messagingSenderId: "171435134738",
-      appId: "1:171435134738:web:e8c3d14f254601f65b2dcb"
-    };
-    const app = initializeApp(firebaseConfig);
-    const auth = getAuth(app);
-    const db = getFirestore(app);
-
-    let userProfile = null;
-    onAuthStateChanged(auth, async (user) => {
-      if (!user) {
-        window.location.href = 'login.html';
-      } else {
-        // Fetch user profile from Firestore
-        const userDoc = await getDoc(doc(db, "users", user.uid));
-        if (userDoc.exists()) {
-          userProfile = userDoc.data();
-          // Populate UI with userProfile data
-          document.getElementById('profile-name').textContent = userProfile.name || '';
-          document.getElementById('profile-role').textContent = userProfile.role || '';
-          document.getElementById('drawer-profile-name').textContent = userProfile.name || '';
-          document.getElementById('drawer-profile-role').textContent = userProfile.role || '';
-          if (userProfile.avatar) {
-            document.getElementById('profile-avatar').style.backgroundImage = `url('${userProfile.avatar}')`;
-            document.getElementById('drawer-profile-avatar').style.backgroundImage = `url('${userProfile.avatar}')`;
-          }
-        }
-      }
-    });
-
-    window.logout = function() {
-      signOut(auth).then(() => {
-        window.location.href = 'login.html';
-      });
-    };
-
-    // Make functions available to onclick handlers
-    window.switchPage = switchPage;
-    window.fabAction = fabAction;
-    window.openDrawer = openDrawer;
-    window.closeDrawer = closeDrawer;
-    window.generatePunishment = generatePunishment;
-    window.openModal = openModal;
-    window.closeModal = closeModal;
-    window.submitModal = submitModal;
-    window.openCustomPunishmentModal = openCustomPunishmentModal;
-    window.closeCustomPunishmentModal = closeCustomPunishmentModal;
-    window.submitCustomPunishment = submitCustomPunishment;
-    window.openChangePasswordModal = openChangePasswordModal;
-    window.closeChangePasswordModal = closeChangePasswordModal;
-    window.submitChangePassword = submitChangePassword;
-    window.openChangeAvatarModal = openChangeAvatarModal;
-    window.closeChangeAvatarModal = closeChangeAvatarModal;
-    window.submitChangeAvatar = submitChangeAvatar;
-
-    // Initialize the app
-    document.addEventListener('DOMContentLoaded', () => {
-      // Set initial page
-      switchPage('habits-page');
-    });
-  </script>
+  <!-- Add main app logic as ES module -->
+  <script type="module" src="script.js"></script>
 </body>
 </html> 
