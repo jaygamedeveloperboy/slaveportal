@@ -1520,4 +1520,9 @@ async function submitProof(event) {
 }
 
 window.closeProofModal = closeProofModal;
-window.submitProof = submitProof; 
+window.submitProof = submitProof;
+
+document.addEventListener('DOMContentLoaded', () => {
+  // Set initial page
+  switchPage('habits-page');
+}); 
