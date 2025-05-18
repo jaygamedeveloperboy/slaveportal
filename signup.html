@@ -145,6 +145,23 @@
       }
     });
 
+    window.addEventListener('DOMContentLoaded', () => {
+      const avatarInput = document.getElementById('avatar-input');
+      const avatarEmoji = document.getElementById('avatar-emoji');
+      if (avatarInput && avatarEmoji) {
+        avatarInput.addEventListener('change', function() {
+          if (this.files && this.files.length > 0) {
+            avatarEmoji.value = '';
+          }
+        });
+        avatarEmoji.addEventListener('input', function() {
+          if (this.value.trim().length > 0) {
+            avatarInput.value = '';
+          }
+        });
+      }
+    });
+
     window.handleSignup = async function(event) {
       event.preventDefault();
       const form = event.target;
@@ -157,12 +174,22 @@
       const securityAnswer = form['security-answer'].value.trim();
       const avatarEmoji = form['avatar-emoji'].value.trim();
       const avatarInput = document.getElementById('avatar-input');
+      const hasImage = avatarInput.files && avatarInput.files.length > 0;
+      const hasEmoji = avatarEmoji.length > 0;
+
+      // Enforce only one avatar choice
+      if ((hasImage && hasEmoji) || (!hasImage && !hasEmoji)) {
+        document.getElementById('signup-error').textContent =
+          'Please choose either an avatar image or an emoji, but not both.';
+        return false;
+      }
+
       let avatar = '';
       let avatarIsImage = false;
 
-      if (avatarInput.files && avatarInput.files[0]) {
+      if (hasImage) {
         avatarIsImage = true;
-      } else if (avatarEmoji) {
+      } else if (hasEmoji) {
         avatar = avatarEmoji;
       }
 
