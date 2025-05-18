@@ -223,8 +223,10 @@
       const form = event.target;
       const username = form.username.value.trim();
       const password = form.password.value;
+      console.log("Attempting login for username:", username);
       // Look up email by username
       const usernameDoc = await getDoc(doc(db, "usernames", username));
+      console.log("Username doc:", usernameDoc.exists() ? usernameDoc.data() : "not found");
       if (!usernameDoc.exists()) {
         document.getElementById('login-error').textContent = 'Username not found.';
         return false;

@@ -118,16 +118,20 @@
     const db = getFirestore(app);
 
     onAuthStateChanged(auth, async (user) => {
+      console.log("onAuthStateChanged fired for user:", user ? user.uid : null);
       if (user) {
         // Check if username mapping exists
         const userDoc = await getDoc(doc(db, "users", user.uid));
+        console.log("Fetched userDoc for user:", user.uid, userDoc.exists() ? userDoc.data() : "not found");
         if (userDoc.exists()) {
           const { username, email } = userDoc.data();
           if (username && email) {
             // Check if username mapping already exists
             const usernameDoc = await getDoc(doc(db, "usernames", username));
+            console.log("Checking if username mapping exists for:", username, usernameDoc.exists());
             if (!usernameDoc.exists()) {
               try {
+                console.log("Attempting to write username mapping:", username, email);
                 await setDoc(doc(db, "usernames", username), { email });
                 console.log("Username mapping written to Firestore (onAuthStateChanged)");
               } catch (err) {
